@@ -1,0 +1,14 @@
+name: crypto-pipeline
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.13
+  - requests
+  - python-confluent-kafka
+  - python-dotenv
+  - psycopg2
+  - black
+  - pandas
+  - pyarrow
+  - minio
