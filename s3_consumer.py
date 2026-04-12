@@ -1,20 +1,27 @@
-from confluent_kafka import Consumer, KafkaException
+from confluent_kafka import DeserializingConsumer, KafkaException
+from confluent_kafka.schema_registry import SchemaRegistryClient
+from confluent_kafka.schema_registry.avro import AvroDeserializer
 from minio import Minio
 from minio import S3Error
-import json
 import pandas as pd
 import io
 from datetime import datetime
 from datetime import timedelta
+
+# --- SCHEMA REGISTRY SETUP ---
+schema_registry_client = SchemaRegistryClient({'url': 'http://localhost:8081'})
+avro_deserializer = AvroDeserializer(schema_registry_client)
 
 # Kafka setup
 conf = {
     "bootstrap.servers": "localhost:9092",
     "group.id": "bitcoin_consumer_group_s3909000009",
     "auto.offset.reset": "earliest",  # Start consuming from the beginning if no offset is committed
+    "key.deserializer": lambda k, ctx: k.decode('utf-8') if k else None,
+    "value.deserializer": avro_deserializer,
 }
 
-consumer = Consumer(conf)
+consumer = DeserializingConsumer(conf)
 
 topic = "coingecko"
 consumer.subscribe([topic])
@@ -88,7 +95,7 @@ try:
             raise KafkaException(msg.error())
         if offset is None:
             offset = msg.offset()
-        value = json.loads(msg.value())
+        value = msg.value()
         print("received message:", value)
         buffer.append(value)
 

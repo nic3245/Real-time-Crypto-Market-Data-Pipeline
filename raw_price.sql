@@ -3,5 +3,6 @@ CREATE TABLE raw_price_events (
     symbol VARCHAR(10) NOT NULL,
     price NUMERIC(18, 8) NOT NULL, -- 18 digits total, 8 decimal places
     source VARCHAR(50),
-    PRIMARY KEY (symbol, timestamp) -- Ensure no dupe events
+    PRIMARY KEY (symbol, timestamp), -- Ensure no dupe events
+    average NUMERIC(18, 8)
 );
